@@ -1,103 +1,100 @@
-var resource = {};
-var game_configs = {};
-var ctx; // = $("#game").getContext("2d");
-var $ = function (q) {
-  return document.querySelector(q);
-};
+var jet = document.getElementById("jet");
+var board = document.getElementById("board");
+var isGameOver = false;
 
-function load(key, url, callback) {
-  if (resource[key]) {
-    callback(resource[key]);
-    return;
-  } else {
-    var img = new Image();
-    img.onload = function () {
-      resource[key] = img;
-      callback(resource[key]);
-    };
-    resource[key] = false;
-    img.src = url;
+window.addEventListener("keydown", (e) => {
+  var left = parseInt(window.getComputedStyle(jet).getPropertyValue("left"));
+  if (e.key == "ArrowLeft" && left > 0) {
+    jet.style.left = left - 10 + "px";
+    jet.style.transform = "rotate(45deg)";
   }
-}
+  //460  =>  board width - jet width
+  else if (e.key == "ArrowRight" && left <= 460) {
+    jet.style.left = left + 10 + "px";
+    jet.style.transform = "rotate(-45deg)";
+  }
+  if (isGameOver) {
+    return;
+  }
+  if (e.key == "ArrowUp" || e.keyCode == 32) {
+    //32 is for space key
+    var bullet = document.createElement("div");
+    bullet.classList.add("bullets");
+    board.appendChild(bullet);
 
-function draw_board() {
-  // console.log(img.width, img.height);
-  ctx.mozImageSmoothingEnabled = false;
-  ctx.webkitImageSmoothingEnabled = false;
-  ctx.msImageSmoothingEnabled = false;
-  ctx.imageSmoothingEnabled = false;
+    var movebullet = setInterval(() => {
+      var rocks = document.getElementsByClassName("rocks");
 
-  //draw game board
-  ctx.beginPath();
-  game_configs["width"] = $("#game").width;
-  game_configs["height"] = $("#game").height;
-  game_configs["center_x"] = Math.min($("#game").width, $("#game").height) / 2;
-  game_configs["center_y"] = Math.min($("#game").width, $("#game").height) / 2;
-  game_configs["radius_big"] = ($("#game").width + $("#game").height - 10) / 4;
-  game_configs["radius_mid"] =
-    (($("#game").width + $("#game").height - 10) * 0.6) / 4;
-  game_configs["radius_small"] =
-    (($("#game").width + $("#game").height - 10) * 0.2) / 4;
-  ctx.strokeStyle = "#FF0000";
-  ctx.arc(
-    game_configs["center_x"],
-    game_configs["center_y"],
-    game_configs["radius_big"],
-    0,
-    2 * Math.PI
+      for (var i = 0; i < rocks.length; i++) {
+        var rock = rocks[i];
+        if (rock != undefined) {
+          var rockbound = rock.getBoundingClientRect();
+          var bulletbound = bullet.getBoundingClientRect();
+
+          //Condition to check whether the rock/alien and the bullet are at the same position..!
+          //If so,then we have to destroy that rock
+
+          if (
+            bulletbound.left >= rockbound.left &&
+            bulletbound.right <= rockbound.right &&
+            bulletbound.top <= rockbound.top &&
+            bulletbound.bottom <= rockbound.bottom
+          ) {
+            rock.parentElement.removeChild(rock); //Just removing that particular rock;
+            //Scoreboard
+            document.getElementById("points").innerHTML =
+              parseInt(document.getElementById("points").innerHTML) + 1;
+          }
+        }
+      }
+      var bulletbottom = parseInt(
+        window.getComputedStyle(bullet).getPropertyValue("bottom")
+      );
+
+      //Stops the bullet from moving outside the gamebox
+      if (bulletbottom >= 500) {
+        clearInterval(movebullet);
+      }
+
+      bullet.style.left = left + "px"; //bullet should always be placed at the top of my jet..!
+      bullet.style.bottom = bulletbottom + 3 + "px";
+    });
+  }
+});
+
+var generaterocks = setInterval(() => {
+  var rock = document.createElement("div");
+  rock.classList.add("rocks");
+  //Just getting the left of the rock to place it in random position...
+  var rockleft = parseInt(
+    window.getComputedStyle(rock).getPropertyValue("left")
   );
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(
-    game_configs["center_x"],
-    game_configs["center_y"],
-    game_configs["radius_mid"],
-    0,
-    2 * Math.PI
-  );
-  ctx.strokeStyle = "#00FF00";
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(
-    game_configs["center_x"],
-    game_configs["center_y"],
-    game_configs["radius_small"],
-    0,
-    2 * Math.PI
-  );
-  ctx.strokeStyle = "#0000FF";
-  ctx.stroke();
-  // ctx.drawImage(
-  //   img,
-  //   0,
-  //   0,
-  //   img.width,
-  //   img.height,
-  //   0,
-  //   0,
-  //   $("#game").width,
-  //   $("#game").height
-  // );
+  //generate value between 0 to 450 where 450 => board width - rock width
+  rock.style.left = Math.floor(Math.random() * 450) + "px";
 
-  console.log($("#game").height, $("#game").width);
-}
+  board.appendChild(rock);
+}, 1200);
 
-window.onload = function () {
-  ctx = $("#game").getContext("2d");
-  draw_board();
+var moverocks = setInterval(() => {
+  var rocks = document.getElementsByClassName("rocks");
 
-  load("img_beyblade1", "img/beyblade1.png", function (img) {
-    ctx.drawImage(
-      img,
-      0,
-      0,
-      img.width,
-      img.height,
-      10,
-      game_configs["center_y"],
-      10,
-      10
-    );
-    console.log($("#game").height, $("#game").width);
-  });
-};
+  if (rocks != undefined) {
+    for (var i = 0; i < rocks.length; i++) {
+      //Now I have to increase the top of each rock,so that the rocks can move downwards..
+      var rock = rocks[i]; //getting each rock
+      var rocktop = parseInt(
+        window.getComputedStyle(rock).getPropertyValue("top")
+      );
+      //475 => boardheight - rockheight + 25
+      if (rocktop >= 475 && !isGameOver) {
+        // alert("Game Over");
+        isGameOver = true;
+        document.getElementById("points").innerHTML =
+          "KO: " + parseInt(document.getElementById("points").innerHTML);
+        clearInterval(moverocks);
+        setTimeout(() => { window.location.reload(); }, 5000);
+      }
+      rock.style.top = rocktop + 25 + "px";
+    }
+  }
+}, 900);
