@@ -59,9 +59,9 @@
     #board {
       position: relative;
       display: inline-block;
-      width: 100%;
+      width: 95%;
       height: 0;
-      padding-bottom: 80%;
+      padding-bottom: 60%;
       margin: 40px auto;
       border: 2px solid white;
       background-color: black;
@@ -105,7 +105,7 @@
       top: 0px;
       margin: 10px;
       opacity: 0.5;
-      font-size: 8em;
+      font-size: 2em;
       color: #ffffff;
     }
   </style>
@@ -146,11 +146,12 @@
   <div class="container-fluid text-center">
     <div class="row content">
       <div class="col-sm-8 text-left play-desc">
-        <h1>Lets fight beyblade attacks</h1>
-        <p>
-          Protect your city against alien beyblades who want to destroy us 🌏 <br>
-          Shoot all incoming beyblades 𒈯
-          </p>
+        <h2>Fight beyblade attacks</h2>
+        Shoot all incoming beyblades 𒈯
+        <div id="points"
+             class="row">
+          Use Arrow/Swipe to play
+        </div>
       </div>
     </div>
     <div id="board"
@@ -158,8 +159,6 @@
       <div class="rocks"></div>
       <div id="jet"></div>
     </div>
-    <div id="points"
-         class="row">0</div>
   </div>
   <br />
   </div>
