@@ -36,7 +36,9 @@ function moveRight() {
 
 function shoot() {
   var left = parseInt(window.getComputedStyle(jet).getPropertyValue("left"));
-  //32 is for space key
+  if (isGameOver) {
+    return;
+  }
   var bullet = document.createElement("div");
   bullet.classList.add("bullets");
   board.appendChild(bullet);
@@ -87,12 +89,24 @@ window.addEventListener("keydown", (e) => {
   else if (e.key == "ArrowRight") {
     moveRight();
   }
-  if (isGameOver) {
-    return;
-  }
-  if (e.key == "ArrowUp" || e.keyCode == 32) {
+  if (e.key == "ArrowUp" || e.key == "ArrowDown" || e.keyCode == 32) {
+    //32 is for space key
     shoot();
   }
+});
+
+// add swipe listeners
+document.addEventListener('swiped-left', function (e) {
+  moveLeft();
+});
+document.addEventListener('swiped-right', function (e) {
+  moveRight();
+});
+document.addEventListener('swiped-up', function (e) {
+  shoot();
+});
+document.addEventListener('swiped-down', function (e) {
+  shoot();
 });
 
 var generaterocks = setInterval(() => {
