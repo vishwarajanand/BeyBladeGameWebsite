@@ -18,60 +18,80 @@ function incrementScore() {
   }
 }
 
-window.addEventListener("keydown", (e) => {
+function moveLeft() {
   var left = parseInt(window.getComputedStyle(jet).getPropertyValue("left"));
-  if (e.key == "ArrowLeft" && left > 0) {
+  if (left > 0) {
     jet.style.left = left - 10 + "px";
     jet.style.transform = "rotate(45deg)";
   }
-  else if (e.key == "ArrowRight" && left <= (boardwidth - jetwidth)) {
+}
+
+function moveRight() {
+  var left = parseInt(window.getComputedStyle(jet).getPropertyValue("left"));
+  if (left <= (boardwidth - jetwidth)) {
     jet.style.left = left + 10 + "px";
     jet.style.transform = "rotate(-45deg)";
+  }
+}
+
+function shoot() {
+  var left = parseInt(window.getComputedStyle(jet).getPropertyValue("left"));
+  //32 is for space key
+  var bullet = document.createElement("div");
+  bullet.classList.add("bullets");
+  board.appendChild(bullet);
+
+  var movebullet = setInterval(() => {
+    var rocks = document.getElementsByClassName("rocks");
+
+    for (var i = 0; i < rocks.length; i++) {
+      var rock = rocks[i];
+      if (rock != undefined) {
+        var rockbound = rock.getBoundingClientRect();
+        var bulletbound = bullet.getBoundingClientRect();
+
+        //Condition to check whether the rock/alien and the bullet are at the same position..!
+        //If so,then we have to destroy that rock
+
+        if (
+          bulletbound.left >= rockbound.left &&
+          bulletbound.right <= rockbound.right &&
+          bulletbound.top <= rockbound.top &&
+          bulletbound.bottom <= rockbound.bottom
+        ) {
+          rock.parentElement.removeChild(rock); //Just removing that particular rock;
+          incrementScore();
+        }
+      }
+    }
+    var bulletbottom = parseInt(
+      window.getComputedStyle(bullet).getPropertyValue("bottom")
+    );
+
+    //Stops the bullet from moving outside the gamebox
+    if (bulletbottom >= boardheight) {
+      clearInterval(movebullet);
+    }
+
+    bullet.style.left = left + "px"; //bullet should always be placed at the top of my jet..!
+    bullet.style.bottom = bulletbottom + 3 + "px";
+  });
+}
+
+// add arrow keypress listeners
+window.addEventListener("keydown", (e) => {
+  var left = parseInt(window.getComputedStyle(jet).getPropertyValue("left"));
+  if (e.key == "ArrowLeft") {
+    moveLeft();
+  }
+  else if (e.key == "ArrowRight") {
+    moveRight();
   }
   if (isGameOver) {
     return;
   }
   if (e.key == "ArrowUp" || e.keyCode == 32) {
-    //32 is for space key
-    var bullet = document.createElement("div");
-    bullet.classList.add("bullets");
-    board.appendChild(bullet);
-
-    var movebullet = setInterval(() => {
-      var rocks = document.getElementsByClassName("rocks");
-
-      for (var i = 0; i < rocks.length; i++) {
-        var rock = rocks[i];
-        if (rock != undefined) {
-          var rockbound = rock.getBoundingClientRect();
-          var bulletbound = bullet.getBoundingClientRect();
-
-          //Condition to check whether the rock/alien and the bullet are at the same position..!
-          //If so,then we have to destroy that rock
-
-          if (
-            bulletbound.left >= rockbound.left &&
-            bulletbound.right <= rockbound.right &&
-            bulletbound.top <= rockbound.top &&
-            bulletbound.bottom <= rockbound.bottom
-          ) {
-            rock.parentElement.removeChild(rock); //Just removing that particular rock;
-            incrementScore();
-          }
-        }
-      }
-      var bulletbottom = parseInt(
-        window.getComputedStyle(bullet).getPropertyValue("bottom")
-      );
-
-      //Stops the bullet from moving outside the gamebox
-      if (bulletbottom >= boardheight) {
-        clearInterval(movebullet);
-      }
-
-      bullet.style.left = left + "px"; //bullet should always be placed at the top of my jet..!
-      bullet.style.bottom = bulletbottom + 3 + "px";
-    });
+    shoot();
   }
 });
 
