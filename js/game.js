@@ -1,6 +1,22 @@
 var jet = document.getElementById("jet");
 var board = document.getElementById("board");
+board.style.height = window.innerHeight - 250 + "px";
+
+var boardheight = parseInt(window.getComputedStyle(board).getPropertyValue("height"));
+var boardwidth = parseInt(window.getComputedStyle(board).getPropertyValue("width"));
+var jetheight = parseInt(window.getComputedStyle(jet).getPropertyValue("height"));
+var jetwidth = parseInt(window.getComputedStyle(jet).getPropertyValue("width"));
 var isGameOver = false;
+
+function incrementScore() {
+  // scoreboard
+  var score_elem = document.getElementById("points");
+  if (isGameOver) {
+    score_elem.innerHTML = "Final Score: " + parseInt(score_elem.innerHTML);
+  } else {
+    score_elem.innerHTML = (parseInt(score_elem.innerHTML) ? 1 + parseInt(score_elem.innerHTML) : 1);
+  }
+}
 
 window.addEventListener("keydown", (e) => {
   var left = parseInt(window.getComputedStyle(jet).getPropertyValue("left"));
@@ -8,8 +24,7 @@ window.addEventListener("keydown", (e) => {
     jet.style.left = left - 10 + "px";
     jet.style.transform = "rotate(45deg)";
   }
-  //460  =>  board width - jet width
-  else if (e.key == "ArrowRight" && left <= 460) {
+  else if (e.key == "ArrowRight" && left <= (boardwidth - jetwidth)) {
     jet.style.left = left + 10 + "px";
     jet.style.transform = "rotate(-45deg)";
   }
@@ -41,9 +56,7 @@ window.addEventListener("keydown", (e) => {
             bulletbound.bottom <= rockbound.bottom
           ) {
             rock.parentElement.removeChild(rock); //Just removing that particular rock;
-            //Scoreboard
-            document.getElementById("points").innerHTML =
-              parseInt(document.getElementById("points").innerHTML) + 1;
+            incrementScore();
           }
         }
       }
@@ -52,7 +65,7 @@ window.addEventListener("keydown", (e) => {
       );
 
       //Stops the bullet from moving outside the gamebox
-      if (bulletbottom >= 500) {
+      if (bulletbottom >= boardheight) {
         clearInterval(movebullet);
       }
 
@@ -64,13 +77,14 @@ window.addEventListener("keydown", (e) => {
 
 var generaterocks = setInterval(() => {
   var rock = document.createElement("div");
+  var rockwidth = window.getComputedStyle(rock).getPropertyValue("width");
   rock.classList.add("rocks");
   //Just getting the left of the rock to place it in random position...
   var rockleft = parseInt(
     window.getComputedStyle(rock).getPropertyValue("left")
   );
   //generate value between 0 to 450 where 450 => board width - rock width
-  rock.style.left = Math.floor(Math.random() * 450) + "px";
+  rock.style.left = Math.floor(Math.random() * (boardwidth - rockwidth)) + "px";
 
   board.appendChild(rock);
 }, 1200);
@@ -85,16 +99,31 @@ var moverocks = setInterval(() => {
       var rocktop = parseInt(
         window.getComputedStyle(rock).getPropertyValue("top")
       );
+      var rockheight = parseInt(
+        window.getComputedStyle(rock).getPropertyValue("height")
+      );
       //475 => boardheight - rockheight + 25
-      if (rocktop >= 475 && !isGameOver) {
+      if (rocktop >= (boardheight - rockheight + 25) && !isGameOver) {
         // alert("Game Over");
         isGameOver = true;
-        document.getElementById("points").innerHTML =
-          "KO: " + parseInt(document.getElementById("points").innerHTML);
+        incrementScore();
         clearInterval(moverocks);
-        setTimeout(() => { window.location.reload(); }, 5000);
+        // setTimeout(() => { window.location.reload(); }, 5000);
       }
       rock.style.top = rocktop + 25 + "px";
     }
   }
 }, 900);
+
+// function debug() {
+//   var boardheight = window.getComputedStyle(board).getPropertyValue("height");
+//   var boardwidth = window.getComputedStyle(board).getPropertyValue("width");
+//   var jetheight = window.getComputedStyle(jet).getPropertyValue("height");
+//   var jetwidth = window.getComputedStyle(jet).getPropertyValue("width");
+//   var pos = {
+//     board: [boardheight, boardwidth],
+//     jet: [jetheight, jetwidth],
+//     jet_pos: [window.getComputedStyle(jet).getPropertyValue("left"), window.getComputedStyle(jet).getPropertyValue("top")]
+//   };
+//   console.table(pos);
+// }
