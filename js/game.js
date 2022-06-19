@@ -84,28 +84,35 @@ function shoot() {
 window.addEventListener("keydown", (e) => {
   var left = parseInt(window.getComputedStyle(jet).getPropertyValue("left"));
   if (e.key == "ArrowLeft") {
+    // console.log('ArrowLeft');
     moveLeft();
   }
   else if (e.key == "ArrowRight") {
+    // console.log('ArrowRight');
     moveRight();
   }
   if (e.key == "ArrowUp" || e.key == "ArrowDown" || e.keyCode == 32) {
     //32 is for space key
+    // console.log('ArrowUp/ArrowDown/Spacebar');
     shoot();
   }
 });
 
 // add swipe listeners
 document.addEventListener('swiped-left', function (e) {
+  // console.log('swiped-left');
   moveLeft();
 });
 document.addEventListener('swiped-right', function (e) {
+  // console.log('swiped-right');
   moveRight();
 });
 document.addEventListener('swiped-up', function (e) {
+  // console.log('swiped-up');
   shoot();
 });
 document.addEventListener('swiped-down', function (e) {
+  // console.log('swiped-down');
   shoot();
 });
 
@@ -142,7 +149,7 @@ var moverocks = setInterval(() => {
         isGameOver = true;
         incrementScore();
         clearInterval(moverocks);
-        // setTimeout(() => { window.location.reload(); }, 5000);
+        setTimeout(() => { window.location.reload(); }, 5000);
       }
       rock.style.top = rocktop + 25 + "px";
     }
